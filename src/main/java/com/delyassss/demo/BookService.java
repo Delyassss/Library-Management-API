@@ -1,5 +1,7 @@
 package com.delyassss.demo;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,5 +27,48 @@ public class BookService
     {
         return bookRepository.findById(id).orElseThrow(()->new TaskNotFoundExeption(id));
     }
+
+    public Page<Book> getbyAuthorAndTitleAndIsBorrow(Iterable<Author> authors, String title, Boolean isBorrowed, Pageable pg)
+    {
+        Page<Book> res = bookRepository.findbyAuthorIgnoreCaseAndTitleIgnoreCaseAndisBorrowed(authors, title, isBorrowed, pg);
+        if (res.isEmpty())
+            throw new TaskNotFoundExeption();
+        return res;
+    }
+
+    public Page<Book> getbyAuthors(Iterable<Author> authors, Pageable pg)
+    {
+        Page<Book> res = bookRepository.findByAuthorsIgnoreCase(authors, pg);
+        if (res.isEmpty())
+            throw new TaskNotFoundExeption();
+        return res;
+    }
+    public Page<Book> getbyTitle(String Title, Pageable pg)
+    {
+        Page<Book> res = bookRepository.findByTitleIgnoreCase(Title, pg);
+        if (res.isEmpty())
+            throw new TaskNotFoundExeption();
+        return res;
+    }
+
+    public Page<Book> getbyBorrowed(Boolean isBorrowed, Pageable pg)
+    {
+        Page<Book> res = bookRepository.findByIsBorrowed(isBorrowed, pg);
+        if (res.isEmpty())
+            throw new TaskNotFoundExeption();
+        return res;
+    }
+
+    public Page<Book> getbyALL (Pageable pg)
+    {
+        Page<Book> res = bookRepository.findAll(pg);
+        if (res.isEmpty())
+            throw new TaskNotFoundExeption();
+        return res;
+    }
+
+
+
+
 
 }

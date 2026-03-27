@@ -6,6 +6,10 @@ public class TaskNotFoundExeption extends RuntimeException
     {
         super("Book with id "+id+" not found");
     }
+    public  TaskNotFoundExeption()
+    {
+        super("No Books found");
+    }
 
 
 
