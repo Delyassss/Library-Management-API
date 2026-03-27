@@ -6,16 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class BookControl
+public class BookController
 {
-    private BookRepository bookRepository;
-    private BookService bookService;
+    private final BookService bookService;
 
-    public BookControl(){};
-    public  BookControl(BookService bookService, BookRepository bookRepository)
+    public BookController(BookService bookService)
     {
         this.bookService = bookService;
-        this.bookRepository = bookRepository;
     }
 
     @PostMapping("/books")
@@ -24,6 +21,7 @@ public class BookControl
         bookService.serviceCreate(book);
         return ResponseEntity.status(HttpStatus.CREATED).body(book);
     }
+
 
     @GetMapping("/books/{id}")
     public ResponseEntity<Book> getbookbyId(@PathVariable Long id)

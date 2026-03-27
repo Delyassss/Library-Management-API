@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Service
 public class BookService
 {
+    public AuthorRepository authorRepository;
     public BookRepository bookRepository;
-    public BookService(BookRepository bookRepository)
+    public BookService(BookRepository bookRepository, AuthorRepository authorRepository)
     {
         this.bookRepository = bookRepository;
+        this.authorRepository = authorRepository;
     }
 
     public Book serviceCreate(Book book)

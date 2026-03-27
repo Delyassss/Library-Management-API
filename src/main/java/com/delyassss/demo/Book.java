@@ -18,12 +18,14 @@ public class Book
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @NotBlank
-    @Size(min = 1, max = 100, message = "title size should be 1 to 100 character ")
-    private String title;
-    @Size(min = 1 , message = "a Book should have an author")
-    private List<Author> authors;
+        private Long id;
+    @NotBlank(message = "Title should not be Empty !")
+    @Size(min = 1, max = 100, message = "title size should be 1 to 100 character !")
+        private String title;
+    @Size(min = 1 , message = "Book should have an author !")
+    @ManyToMany(cascade = CascadeType.PERSIST) // PERSIST = only save , ALL = CRUD
+        private List<Author> authors;
+
     private Boolean isBorrowed =  false;
 
 
