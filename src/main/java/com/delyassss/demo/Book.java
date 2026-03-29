@@ -23,7 +23,7 @@ public class Book
     @Size(min = 1, max = 100, message = "title size should be 1 to 100 character !")
         private String title;
     @Size(min = 1 , message = "Book should have an author !")
-    @ManyToMany(cascade = CascadeType.PERSIST) // PERSIST = only save , ALL = CRUD
+    @ManyToMany(cascade = CascadeType.ALL) // PERSIST = only save , ALL = CRUD
         private List<Author> authors;
 
     private Boolean isBorrowed =  false;

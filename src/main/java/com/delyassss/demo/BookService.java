@@ -30,7 +30,7 @@ public class BookService
 
     public Page<Book> getbyAuthorAndTitleAndIsBorrow(Iterable<Author> authors, String title, Boolean isBorrowed, Pageable pg)
     {
-        Page<Book> res = bookRepository.findbyAuthorIgnoreCaseAndTitleIgnoreCaseAndisBorrowed(authors, title, isBorrowed, pg);
+        Page<Book> res = bookRepository.findByAuthorsIgnoreCaseAndTitleIgnoreCaseAndIsBorrowed(authors, title, isBorrowed, pg);
         if (res.isEmpty())
             throw new TaskNotFoundExeption();
         return res;
@@ -65,6 +65,25 @@ public class BookService
         if (res.isEmpty())
             throw new TaskNotFoundExeption();
         return res;
+    }
+
+    BookBodyRequest ConvertToBookBodyRequest(Book book)
+    {
+        BookBodyRequest bookBodyRequest = new BookBodyRequest();
+        bookBodyRequest.setTitle(book.getTitle());
+        bookBodyRequest.setAuthors(book.getAuthors());
+        bookBodyRequest.setIsBorrowed(book.getIsBorrowed());
+        return bookBodyRequest;
+    }
+
+    public BookBodyRequest UpdateBOOK(BookBodyRequest book, Long id)
+    {
+        Book bk = getBookById(id);
+        bk.setTitle(book.getTitle());
+        bk.setIsBorrowed(book.getIsBorrowed());
+        bk.setAuthors(book.getAuthors());
+        bookRepository.save(bk);
+        return ConvertToBookBodyRequest(bk);
     }
 
 

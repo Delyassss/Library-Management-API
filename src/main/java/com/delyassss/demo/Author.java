@@ -17,5 +17,5 @@ public class Author
     Long id;
     @NotBlank(message = "Author should have a name !")
     @Size(min = 3, max = 30, message = "Invalid author Name")
-    private String FullName;
+    private String fullName;
 }

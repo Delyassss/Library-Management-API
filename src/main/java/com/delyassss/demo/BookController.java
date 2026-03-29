@@ -1,6 +1,7 @@
 package com.delyassss.demo;
 
 import jakarta.validation.Valid;
+import lombok.extern.java.Log;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,14 +20,14 @@ public class BookController
     }
 
     @PostMapping("/books")
-    public ResponseEntity<Book> createBook(@Valid @RequestBody Book book)
+            public ResponseEntity<Book> createBook(@Valid @RequestBody Book book)
     {
         bookService.serviceCreate(book);
         return ResponseEntity.status(HttpStatus.CREATED).body(book);
     }
 
-    @GetMapping("/books}")
-    public ResponseEntity<Page<Book>> getBooks(@RequestParam(required = false) Iterable<Author> authors,
+    @GetMapping("/books")
+            public ResponseEntity<Page<Book>> getBooks(@RequestParam(required = false) Iterable<Author> authors,
                                          @RequestParam(required = false) String title,
                                          @RequestParam(required = false) Boolean isBorrowed,
                                          @RequestParam(defaultValue = "0") Integer page,
@@ -50,10 +51,17 @@ public class BookController
     }
 
     @GetMapping("/books/{id}")
-    public ResponseEntity<Book> getbookbyId(@PathVariable Long id)
+            public ResponseEntity<Book> getbookbyId(@PathVariable Long id)
     {
         Book bk = bookService.getBookById(id);
         return ResponseEntity.ok(bk);
+    }
+
+    @PutMapping("/books/{id}")
+            public ResponseEntity<BookBodyRequest> UpdateBook(@Valid @RequestBody BookBodyRequest book, @PathVariable Long id)
+    {
+        BookBodyRequest bookRequest = bookService.UpdateBOOK(book,id);
+        return ResponseEntity.status(HttpStatus.OK).body(bookRequest);
     }
 
 
