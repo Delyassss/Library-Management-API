@@ -1,10 +1,11 @@
 package com.delyassss.demo;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.List;
 
 @Service
 public class BookService
@@ -17,10 +18,23 @@ public class BookService
         this.authorRepository = authorRepository;
     }
 
-    public Book serviceCreate(Book book)
+    public BookDTO serviceCreate(BookDTO book)
     {
-        Book book1 = bookRepository.save(book);
-        return book1;
+        Book book1 = new  Book();
+        book1.setTitle(book.getTitle());
+        book1.setAuthors(book.getAuthors());
+        book1.setIsBorrowed(book.getIsBorrowed());
+        bookRepository.save(book1);
+
+        return ConvertToBookBodyRequest(book1);
+    }
+
+    public Page<Book>   getDynamically(List<String> authors, String title , Boolean isBorrowed , Pageable pageable)
+    {
+        Page<Book> result = bookRepository.BooksDynamically(authors, title, isBorrowed, pageable);
+        if (result == null || result.isEmpty())
+            throw new TaskNotFoundExeption();
+        return result;
     }
 
     public Book getBookById(Long id)
@@ -28,7 +42,7 @@ public class BookService
         return bookRepository.findById(id).orElseThrow(()->new TaskNotFoundExeption(id));
     }
 
-    public Page<Book> getbyAuthorAndTitleAndIsBorrow(Iterable<Author> authors, String title, Boolean isBorrowed, Pageable pg)
+    public Page<Book> getbyAuthorAndTitleAndIsBorrow(Iterable<String> authors, String title, Boolean isBorrowed, Pageable pg)
     {
         Page<Book> res = bookRepository.findByAuthorsIgnoreCaseAndTitleIgnoreCaseAndIsBorrowed(authors, title, isBorrowed, pg);
         if (res.isEmpty())
@@ -36,7 +50,7 @@ public class BookService
         return res;
     }
 
-    public Page<Book> getbyAuthors(Iterable<Author> authors, Pageable pg)
+    public Page<Book> getbyAuthors(Iterable<String> authors, Pageable pg)
     {
         Page<Book> res = bookRepository.findByAuthorsIgnoreCase(authors, pg);
         if (res.isEmpty())
@@ -67,23 +81,37 @@ public class BookService
         return res;
     }
 
-    BookBodyRequest ConvertToBookBodyRequest(Book book)
+    BookDTO ConvertToBookBodyRequest(Book book)
     {
-        BookBodyRequest bookBodyRequest = new BookBodyRequest();
-        bookBodyRequest.setTitle(book.getTitle());
-        bookBodyRequest.setAuthors(book.getAuthors());
-        bookBodyRequest.setIsBorrowed(book.getIsBorrowed());
-        return bookBodyRequest;
+        BookDTO bookDTO = new BookDTO();
+        bookDTO.setTitle(book.getTitle());
+        bookDTO.setAuthors(book.getAuthors());
+        bookDTO.setIsBorrowed(book.getIsBorrowed());
+        return bookDTO;
     }
 
-    public BookBodyRequest UpdateBOOK(BookBodyRequest book, Long id)
+    Page<BookDTO>  BookChunkTODTO(Page<Book> page)
+    {
+        Page<BookDTO> pg;
+        pg = page.map(book -> ConvertToBookBodyRequest(book));
+        return pg;
+    }
+
+    public BookDTO UpdateBOOK(BookDTO book, Long id)
     {
         Book bk = getBookById(id);
         bk.setTitle(book.getTitle());
         bk.setIsBorrowed(book.getIsBorrowed());
         bk.setAuthors(book.getAuthors());
+//        modelMapper.map(book, bk);
         bookRepository.save(bk);
         return ConvertToBookBodyRequest(bk);
+    }
+
+    public void Deletebook(Long id)
+    {
+        Book book = getBookById(id);
+        bookRepository.delete(book);
     }
 
 
