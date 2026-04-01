@@ -58,10 +58,10 @@ public class BookController
     }
 
     @GetMapping("/books/{id}")
-            public ResponseEntity<Book> getbookbyId(@PathVariable Long id)
+            public ResponseEntity<BookDTO> getbookbyId(@PathVariable Long id)
     {
         Book bk = bookService.getBookById(id);
-        return ResponseEntity.ok(bk);
+        return ResponseEntity.ok(bookService.ConvertToBookBodyRequest(bk));
     }
 
     @PutMapping("/books/{id}")
