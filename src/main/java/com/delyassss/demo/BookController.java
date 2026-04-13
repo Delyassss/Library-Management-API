@@ -1,6 +1,7 @@
 package com.delyassss.demo;
 
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 public class BookController
 {
+    @Autowired
     private final BookService bookService;
 
     public BookController(BookService bookService)
@@ -31,6 +33,7 @@ public class BookController
             public ResponseEntity<Page<BookDTO>> getBooks(@RequestParam(required = false) List<String> authors,
                                          @RequestParam(required = false) String title,
                                          @RequestParam(required = false) Boolean isBorrowed,
+                                         @RequestParam(required = false) Boolean deleted,
                                          @RequestParam(defaultValue = "0") Integer page,
                                          @RequestParam(defaultValue = "5") Integer size)
     {
@@ -40,7 +43,7 @@ public class BookController
             authors = null;
         }
         Pageable pg = PageRequest.of(page, size);
-        Page<Book> result ;
+        Page<BookDTO> result ;
 //        if (authors != null && title != null && isBorrowed != null)
 //            result = bookService.getbyAuthorAndTitleAndIsBorrow(authors, title, isBorrowed, pg);
 //        else if (title != null)
@@ -51,9 +54,12 @@ public class BookController
 //            result = bookService.getbyAuthors(authors, pg);
 //        else
 //            result = bookService.getbyALL(pg);
-        result = bookService.getDynamically(authors, title, isBorrowed, pg);
+        if (deleted != null)
+            result = bookService.findbydeleted(deleted , pg);
+        else
+            result = bookService.getDynamically(authors, title, isBorrowed, pg);
 
-        return ResponseEntity.ok(bookService.BookChunkTODTO(result));
+        return ResponseEntity.ok(result);
 
     }
 
@@ -74,8 +80,9 @@ public class BookController
     @DeleteMapping("books/{id}")
         public ResponseEntity<Void> DeleteBook(@PathVariable Long id)
     {
-        bookService.Deletebook(id);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        if (bookService.Deletebook(id) == 0)
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
 

@@ -20,4 +20,9 @@ interface BookRepository extends JpaRepository<Book, Long>
     Page<Book> findByAuthorsIgnoreCase(Iterable<String> authors, Pageable pg);
     Page<Book> findByTitleIgnoreCase(String Title, Pageable pg);
     Page <Book> findByIsBorrowed(Boolean isBorrowed, Pageable pg);
+    @Query(value = "SELECT * FROM Book WHERE deleted = :deleted", nativeQuery = true) // with nativeQuery we talking to the database not to hibernate
+    Page<Book>  findAllByDeleted(@Param("deleted") Boolean deleted , Pageable pg);
+
+    @Query(value = "SELECT * FROM Book WHERE id = :book_id AND deleted = true", nativeQuery = true)
+    Book findDeletedById(@Param("book_id") Long book_id);
 }

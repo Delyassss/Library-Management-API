@@ -1,5 +1,6 @@
 package com.delyassss.demo;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -10,8 +11,11 @@ import java.util.List;
 @Service
 public class BookService
 {
+    @Autowired
     public AuthorRepository authorRepository;
+    @Autowired
     public BookRepository bookRepository;
+
     public BookService(BookRepository bookRepository, AuthorRepository authorRepository)
     {
         this.bookRepository = bookRepository;
@@ -22,25 +26,42 @@ public class BookService
     {
         Book book1 = new  Book();
         book1.setTitle(book.getTitle());
-        book1.setAuthors(book.getAuthors());
+        List<Author> incomingAuthor = book.getAuthors();
+        for(Author author : incomingAuthor)
+        {
+            if (author == null)
+                    break;
+            author.setBook(book1);
+        }
+        book1.getAuthors().addAll(incomingAuthor);
         book1.setIsBorrowed(book.getIsBorrowed());
         bookRepository.save(book1);
 
         return ConvertToBookBodyRequest(book1);
     }
 
-    public Page<Book>   getDynamically(List<String> authors, String title , Boolean isBorrowed , Pageable pageable)
+    public Page<BookDTO>   getDynamically(List<String> authors, String title , Boolean isBorrowed , Pageable pageable)
     {
         Page<Book> result = bookRepository.BooksDynamically(authors, title, isBorrowed, pageable);
         if (result == null || result.isEmpty())
             throw new TaskNotFoundExeption();
-        return result;
+        return BookChunkTODTO(result);
     }
 
     public Book getBookById(Long id)
     {
-        return bookRepository.findById(id).orElseThrow(()->new TaskNotFoundExeption(id));
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundExeption(id));
     }
+
+    public Page<BookDTO> findbydeleted(Boolean deleted , Pageable pg)
+    {
+        Page<Book> books = bookRepository.findAllByDeleted(deleted , pg);
+        if (books == null || books.isEmpty())
+            throw new TaskNotFoundExeption();
+        return BookChunkTODTO(books);
+    }
+
 
     public Page<Book> getbyAuthorAndTitleAndIsBorrow(Iterable<String> authors, String title, Boolean isBorrowed, Pageable pg)
     {
@@ -87,6 +108,7 @@ public class BookService
         bookDTO.setTitle(book.getTitle());
         bookDTO.setAuthors(book.getAuthors());
         bookDTO.setIsBorrowed(book.getIsBorrowed());
+        bookDTO.setDeleted(book.getDeleted());
         return bookDTO;
     }
 
@@ -99,19 +121,35 @@ public class BookService
 
     public BookDTO UpdateBOOK(BookDTO book, Long id)
     {
-        Book bk = getBookById(id);
+        Book bk;
+
+        bk = bookRepository.findDeletedById(id);
+        if (bk == null)
+            bk = getBookById(id);
+
         bk.setTitle(book.getTitle());
         bk.setIsBorrowed(book.getIsBorrowed());
-        bk.setAuthors(book.getAuthors());
+        bk.getAuthors().clear();
+        List<Author> newAuthors = book.getAuthors(); // so we have Book object in author class so we can set each one to the book object
+        for (Author author : newAuthors)
+        {
+            author.setBook(bk);
+            bk.getAuthors().add(author);
+        }
+//        bk.setAuthors(newAuthors);
+        bk.setDeleted(book.getDeleted());
 //        modelMapper.map(book, bk);
         bookRepository.save(bk);
         return ConvertToBookBodyRequest(bk);
     }
 
-    public void Deletebook(Long id)
+    public int Deletebook(Long id)
     {
         Book book = getBookById(id);
+        if (book.getIsBorrowed() == true)
+            return  0;
         bookRepository.delete(book);
+        return 1;
     }
 
 
