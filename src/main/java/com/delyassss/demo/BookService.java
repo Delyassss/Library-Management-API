@@ -26,14 +26,14 @@ public class BookService
     {
         Book book1 = new  Book();
         book1.setTitle(book.getTitle());
-        List<Author> incomingAuthor = book.getAuthors();
-        for(Author author : incomingAuthor)
+        List<String> incomingAuthor = book.getAuthors();
+        for(String names : incomingAuthor)
         {
-            if (author == null)
-                    break;
-            author.setBook(book1);
+            Author p = new Author();
+            p.setFullName(names);
+            p.setBook(book1);
+            book1.getAuthors().add(p);
         }
-        book1.getAuthors().addAll(incomingAuthor);
         book1.setIsBorrowed(book.getIsBorrowed());
         bookRepository.save(book1);
 
@@ -106,7 +106,12 @@ public class BookService
     {
         BookDTO bookDTO = new BookDTO();
         bookDTO.setTitle(book.getTitle());
-        bookDTO.setAuthors(book.getAuthors());
+        List<Author> authors = book.getAuthors();
+        for (Author author : authors)
+        {
+            bookDTO.getAuthors().add(author.getFullName());
+        }
+//        bookDTO.setAuthors(book.getAuthors());
         bookDTO.setIsBorrowed(book.getIsBorrowed());
         bookDTO.setDeleted(book.getDeleted());
         return bookDTO;
@@ -130,13 +135,15 @@ public class BookService
         bk.setTitle(book.getTitle());
         bk.setIsBorrowed(book.getIsBorrowed());
         bk.getAuthors().clear();
-        List<Author> newAuthors = book.getAuthors(); // so we have Book object in author class so we can set each one to the book object
-        for (Author author : newAuthors)
+        List<String> newAuthors = book.getAuthors(); // so we have Book object in author class so we can set each one to the book object
+        for (String names : newAuthors)
         {
-            author.setBook(bk);
-            bk.getAuthors().add(author);
+            Author  p = new Author();
+            p.setFullName(names);
+            p.setBook(bk);
+            bk.getAuthors().add(p);
         }
-//        bk.setAuthors(newAuthors);
+
         bk.setDeleted(book.getDeleted());
 //        modelMapper.map(book, bk);
         bookRepository.save(bk);

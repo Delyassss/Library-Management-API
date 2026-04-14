@@ -26,9 +26,7 @@ public class Book
     @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
-    @NotNull(message = "Title necessary !")
     @NotBlank(message = "Title should not be Empty !")
-    @Size(min = 1, max = 100, message = "title size should be 1 to 100 character !")
         private String title;
 
     @NotNull(message = "Authors list must not be null")
