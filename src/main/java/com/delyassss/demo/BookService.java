@@ -26,7 +26,7 @@ public class BookService
     {
         Book book1 = new  Book();
         book1.setTitle(book.getTitle());
-        List<String> incomingAuthor = book.getAuthors();
+        List<String> incomingAuthor = book.getAuthors(); // authors request as List<Sting>
         for(String names : incomingAuthor)
         {
             Author p = new Author();
